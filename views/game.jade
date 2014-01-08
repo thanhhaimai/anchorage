@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  h1= game.name
-  p Game: #{game.name}
   script(src="/socket.io/socket.io.js")
+  script(src="/js/game.js")
   script(src="/js/client.js")

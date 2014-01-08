@@ -1,0 +1,6 @@
+{
+  "verbose": true,
+  "debug": true,
+  "watch": ["public", "routes", "views"],
+  "ext": "js,jade,less"
+}

@@ -9,6 +9,7 @@
     "express": "3.4.7",
     "jade": "*",
     "less-middleware": "*",
-    "socket.io": "0.9.16"
+    "socket.io": "0.9.16",
+    "moniker": "*"
   }
 }
