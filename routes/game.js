@@ -8,11 +8,12 @@ exports.create = function(req, res) {
 };
 
 exports.list = function(req, res) {
-  res.send("TODO: implement");
+  res.render('room');
 };
 
 exports.get = function(req, res) {
-  res.send("TODO: implement");
+  game = { name: req.params.name };
+  res.render('game', { game: game });
 };
 
 exports.onConnect = function (socket) {
