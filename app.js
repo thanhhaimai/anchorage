@@ -5,7 +5,7 @@
 
 var express = require('express');
 var routes = require('./routes');
-var user = require('./routes/user');
+var game = require('./routes/game');
 var http = require('http');
 var path = require('path');
 
@@ -32,14 +32,11 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+app.get('/create', game.create);
+app.get('/room', game.list);
+app.get('/room/:name', game.get);
 
-io.sockets.on('connection', function (socket) {
-  socket.emit('ping', {data: 'ping'});
-  socket.on('pong', function (data) {
-    console.log(data);
-  });
-});
+io.sockets.on('connection', game.onConnect);
 
 server.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
