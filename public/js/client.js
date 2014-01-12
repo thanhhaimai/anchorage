@@ -3,101 +3,149 @@
  */
 (function(exports){
 
-  function renderReadyButton() {
-  }
-
-  // socket.on('ping', function(data) {
-  //   console.log(JSON.stringify(data, null, 2));
-  //   console.log(data);
-  //   socket.emit('pong', {data: "pong"});
-  // });
-
-  // socket.on('gameUpdate', function(game) {
-  //   if (game.state == GameStates.INIT) {
-  //     Display.renderRequestReady();
-  //   } else {
-
-  //   }
-  // });
-
-  /*
-   * Events:
-   * user clicks create game -> new Game
-   * user joins a game -> connect, ask for ready if game state is INIT
-   * user disconnect -> disconnect, END
-   */
-
-  /*
-   * Game states
-   * INIT -> wait for ready
-   * all ready -> START
-   * START -> START ROUND, wait for play card
-   * all played -> END ROUND, compute new score, sync, START ROUND
-   * repeat, until no more card -> END
-   */
-
   function Room(socket) {
-    this.socket = socket;
-    this.name = window.location.href.split("/").pop();
-    this.game = new anchorage.Game();
-    this.socket.on('connect', this.onConnect);
-    this.socket.on('sync', this.onSync);
-  }
+    var self = this;
+    self.socket = socket;
+    self.name = window.location.href.split("/").pop();
+    self.game = new anchorage.Game(this.name);
 
-  Room.prototype.update = function() {
-    if (this.game.state == anchorage.GameStates.INIT) {
-      renderReadyButton();
-    }
-  }
-
-  Room.prototype.onConnect = function() {
-    this.requestSync();
-  }
-
-  Room.prototype.onSync = function(data) {
-    this.game.players = data.players.map(function(player) {
-      var p = new anchorage.Player(player.id);
-      p.hand = player.hand;
-      return p;
+    self.socket.on('connect', function() {
+      self.requestSync();
     });
 
-    this.game.actions = data.game.actions.map(function(action) {
-      return new anchorage.Action(action.player, action.guess);
-    }
+    self.socket.on('onSync', function(game) {
+      if (game == null) {
+        console.log('Game does not exist');
+        return;
+      }
 
-    this.game.discardCardsCount = data.game.discardCardsCount;
-    this.game.roundsCount = data.game.roundsCount;
-    this.game.state = data.game.state;
+      self.game.players = game.players.map(function(player) {
+        var p = new anchorage.Player(player.id);
+        p.hand = player.hand;
+        return p;
+      });
+
+      self.game.actions = game.actions.map(function(action) {
+        return new anchorage.Action(action.player, action.guess);
+      });
+
+      self.game.discardCardsCount = game.discardCardsCount;
+      self.game.roundsCount = game.roundsCount;
+      self.game.state = game.state;
+
+      for (var i = 0; i < self.game.players.length; i++) {
+        var player = self.game.players[i];
+        if (player.id == socket.id) {
+          self.currentPlayer = player;
+        }
+      }
+
+      self.render(); 
+    });
+
+    // self.socket.on('onRoundStart', this.onRoundStart);
+    // self.socket.on('onRoundEnd', this.onRoundEnd);
+    // self.socket.on('onGameEnd', this.onGameEnd);
+
+    this.isPlaying = false;
   }
 
   // loads the current hand from server.
   Room.prototype.requestSync = function() {
-    socket.emit('requestSync', this.name);
+    this.socket.emit('requestSync', this.name);
   }
 
   Room.prototype.requestReady = function() {
+    this.socket.emit('requestReady', this.socket.id);
   }
 
   Room.prototype.requestUnready = function() {
+    this.socket.emit('requestUnReady', this.socket.id);
   }
 
-  Room.prototype.start = function() {
+  Room.prototype.requestPlayCard = function(card, guess) {
+    // local
+    this.game.playCard(this.currentPlayer, guess, card);
+
+    // server
+    request = {
+      id: this.socket.id,
+      guess: guess,
+      card: card
+    };
+    this.socket.emit('requestPlayCard', request);
   }
 
-  Room.prototype.startRound = function() {
+  Room.prototype.render = function() {
+    if (this.game.state == anchorage.GameStates.INIT) {
+      this.renderReadyButton();
+    } else if (this.game.state < anchorage.GameStates.STARTED) {
+      this.clearReadyButton();
+    } else if (this.game.state < anchorage.GameStates.ROUND_START) {
+      this.renderRoundStart();
+    } else if (this.game.state < anchorage.GameStates.ROUND_END) {
+      this.renderRoundEnd();
+    } else if (this.game.state < anchorage.GameStates.END) {
+      this.renderGameEnd();
+    } else {
+      console.error("Bad game state: " + this.game.state);
+    }
+
+    this.renderPlayers(this.game.players);
   }
 
-  Room.prototype.playCard = function(card) {
+  Room.prototype.renderReadyButton = function() {
+    console.log("Please enter ready");
   }
 
-  Room.prototype.endRound = function() {
+  Room.prototype.clearReadyButton = function() {
+    // noop
   }
 
-  Room.prototype.end = function() {
+  Room.prototype.renderRoundStart = function() {
+    console.log("Round " + this.game.roundsCount + " in progress. Please submit your action.");
   }
+
+  Room.prototype.renderRoundEnd = function() {
+    console.log("Round " + this.game.roundsCount + " has ended.");
+  }
+
+  Room.prototype.renderGameEnd = function() {
+    console.log("Game is over.");
+  }
+
+  Room.prototype.renderPlayers = function() {
+    for (var i = 0; i < this.game.players.length; i++) {
+      var player = this.game.players[i];
+      console.log(player.id + ": " + player.hand);
+    }
+  }
+
+  Room.prototype.renderAction = function() {
+    for (var i = 0; i < this.game.actions.length; i++) {
+      console.log(this.game.actions[i]);
+    }
+  }
+
+  // Room.prototype.onRoundStart = function(game) {
+  //   this.game.state = anchorage.GameStates.ROUND_START;
+  //   // renderRoundStart(game);
+  // }
+  //
+  // Room.prototype.onRoundEnd = function(game) {
+  //   this.game.state = anchorage.GameStates.ROUND_START;
+  //   // renderRoundEnd(game);
+  // }
+  //
+  // Room.prototype.onGameEnd = function(game) {
+  //   this.game.state = anchorage.GameStates.END;
+  //   // renderGameEnd(game);
+  // }
 
   exports.socket = io.connect('http://localhost:3000');
-  exports.Display = Display;
+  // exports.Display = Display;
   exports.Room = Room;
 
 })(this['anchorage'] = this['anchorage'] || {});
+
+room = new anchorage.Room(anchorage.socket);
