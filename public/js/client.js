@@ -56,11 +56,11 @@
   }
 
   Room.prototype.requestReady = function() {
-    this.socket.emit('requestReady', this.socket.id);
+    this.socket.emit('requestReady', this.name);
   }
 
   Room.prototype.requestUnready = function() {
-    this.socket.emit('requestUnReady', this.socket.id);
+    this.socket.emit('requestUnReady', this.name);
   }
 
   Room.prototype.requestPlayCard = function(card, guess) {
@@ -69,6 +69,7 @@
 
     // server
     request = {
+      name: this.name,
       id: this.socket.id,
       guess: guess,
       card: card

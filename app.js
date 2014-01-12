@@ -36,7 +36,7 @@ app.get('/create', game.create);
 app.get('/room', game.list);
 app.get('/room/:name', game.get);
 
-io.sockets.on('connection', game.onConnect);
+game.listen(io.sockets);
 
 server.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
