@@ -20,14 +20,14 @@
   };
 
   exports.listen = function(sockets) {
-    sockets.on('connection', function (client) {
-      client.on('requestSync', function (name) {
+    sockets.on('connection', function(client) {
+      client.on('requestSync', function(name) {
         console.log('requestSync from: ' + client.id + ' for game: ' + name);
         var game = games[name];
         client.emit('onSync', game);
       });
 
-      client.on('requestReady', function (name) {
+      client.on('requestReady', function(name) {
         console.log('requestReady from: ' + client.id + ' for game: ' + name);
         var game = games[name];
         for (var i = 0; i < game.players.length; i++) {
@@ -39,6 +39,20 @@
         }
 
         game.addNewPlayer(client.id);
+        sockets.emit('onSync', game);
+      });
+
+      client.on('requestUnready', function(name) {
+        console.log('requestReady from: ' + client.id + ' for game: ' + name);
+        var game = games[name];
+        for (var i = 0; i < game.players.length; i++) {
+          // the player is already in the game
+          if (game.players[i].id == client.id) {
+            game.players.splice(i, 1);
+            break;
+          }
+        }
+
         sockets.emit('onSync', game);
       });
     });

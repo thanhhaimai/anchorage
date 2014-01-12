@@ -33,9 +33,10 @@
       self.game.roundsCount = game.roundsCount;
       self.game.state = game.state;
 
+      self.currentPlayer = null;
       for (var i = 0; i < self.game.players.length; i++) {
         var player = self.game.players[i];
-        if (player.id == socket.id) {
+        if (player.id == socket.socket.sessionid) {
           self.currentPlayer = player;
         }
       }
@@ -60,7 +61,7 @@
   }
 
   Room.prototype.requestUnready = function() {
-    this.socket.emit('requestUnReady', this.name);
+    this.socket.emit('requestUnready', this.name);
   }
 
   Room.prototype.requestPlayCard = function(card, guess) {
@@ -70,7 +71,7 @@
     // server
     request = {
       name: this.name,
-      id: this.socket.id,
+      id: this.socket.socket.sessionid,
       guess: guess,
       card: card
     };
@@ -96,6 +97,14 @@
   }
 
   Room.prototype.renderReadyButton = function() {
+    for (var i = 0; i < this.game.players.length; i++) {
+      var player = this.game.players[i];
+      if (player.id == this.socket.socket.sessionid) {
+        console.log("You're in the game");
+        return;
+      }
+    }
+
     console.log("Please enter ready");
   }
 
