@@ -24,27 +24,46 @@
       client.on('requestSync', function(name) {
         console.log('requestSync from: ' + client.id + ' for game: ' + name);
         var game = games[name];
-        client.emit('onSync', game);
+        if (game == null) {
+          return;
+        }
+
+        client.emit('onSync', game.toDict(client.id));
       });
 
       client.on('requestReady', function(name) {
         console.log('requestReady from: ' + client.id + ' for game: ' + name);
         var game = games[name];
+        if (game == null) {
+          return;
+        }
+
         for (var i = 0; i < game.players.length; i++) {
           // the player is already in the game
           if (game.players[i].id == client.id) {
-            sockets.emit('onSync', game);
+            game.syncAllClients();
             return;
           }
         }
 
-        game.addNewPlayer(client.id);
-        sockets.emit('onSync', game);
+        game.addNewPlayer(client);
+
+        if (game.state == anchorage.GameStates.INIT
+          && game.players.length == anchorage.GameConstants.NUM_PLAYERS) {
+          game.start();
+        }
+
+        game.syncAllClients();
+        // sockets.emit('onSync', game);
       });
 
       client.on('requestUnready', function(name) {
         console.log('requestReady from: ' + client.id + ' for game: ' + name);
         var game = games[name];
+        if (game == null) {
+          return;
+        }
+
         for (var i = 0; i < game.players.length; i++) {
           // the player is already in the game
           if (game.players[i].id == client.id) {
@@ -53,7 +72,13 @@
           }
         }
 
-        sockets.emit('onSync', game);
+        if (game.state != anchorage.GameStates.INIT
+          && game.players.length < anchorage.GameConstants.NUM_PLAYERS) {
+          game.state = anchorage.GameStates.END;
+        }
+
+        game.syncAllClients();
+        // sockets.emit('onSync', game);
       });
     });
   }

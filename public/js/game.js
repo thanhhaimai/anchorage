@@ -25,6 +25,7 @@
     RANKS_COUNT: 13,
     SUITS_COUNT: 4,
     START_CARD_RANK: 2,
+    NUM_PLAYERS: 4
   }
 
   function Deck(ranksCount, suitsCount, startRank) {
@@ -62,13 +63,14 @@
     }
   }
 
-  function Player(id) {
+  function Player(id, socket) {
     if (typeof id === 'undefined') {
       console.error("Bad player id: " + id);
       return;
     }
 
     this.id = id;
+    this.socket = socket;
     this.score = 0;
     this.hand = [];
   }
@@ -129,14 +131,22 @@
     return game;
   }
 
-  Game.prototype.addNewPlayer = function(id) {
-    this.players.push(new Player(id));
+  Game.prototype.syncAllClients = function() {
+    for (var i = 0; i < this.players.length; i++) {
+      var player = this.players[i];
+      player.socket.emit('onSync', this.toDict(player.id));
+    }
   }
 
-  Game.prototype.generatePlayersHand = function() {
+  Game.prototype.addNewPlayer = function(socket) {
+    this.players.push(new Player(socket.id, socket));
+  }
+
+  Game.prototype.start = function() {
     deck = new Deck();
     deck.shuffle();
     deck.deal(this.players);
+    this.state = GameStates.ROUND_START;
   }
 
   Game.prototype.startRound = function() {

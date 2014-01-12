@@ -81,13 +81,13 @@
   Room.prototype.render = function() {
     if (this.game.state == anchorage.GameStates.INIT) {
       this.renderReadyButton();
-    } else if (this.game.state < anchorage.GameStates.STARTED) {
+    } else if (this.game.state == anchorage.GameStates.STARTED) {
       this.clearReadyButton();
-    } else if (this.game.state < anchorage.GameStates.ROUND_START) {
+    } else if (this.game.state == anchorage.GameStates.ROUND_START) {
       this.renderRoundStart();
-    } else if (this.game.state < anchorage.GameStates.ROUND_END) {
+    } else if (this.game.state == anchorage.GameStates.ROUND_END) {
       this.renderRoundEnd();
-    } else if (this.game.state < anchorage.GameStates.END) {
+    } else if (this.game.state == anchorage.GameStates.END) {
       this.renderGameEnd();
     } else {
       console.error("Bad game state: " + this.game.state);
