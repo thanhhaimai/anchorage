@@ -4,7 +4,7 @@
  */
 
 var express = require('express');
-var routes = require('./routes');
+// var routes = require('./routes');
 var game = require('./routes/game');
 var http = require('http');
 var path = require('path');
@@ -31,9 +31,9 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
+app.get('/', game.index);
 app.get('/create', game.create);
-app.get('/room', game.list);
+// app.get('/room', game.list);
 app.get('/room/:name', game.get);
 
 game.listen(io.sockets);

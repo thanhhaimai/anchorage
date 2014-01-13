@@ -4,16 +4,25 @@
 
   games = {};
 
+  exports.index = function(req, res){
+    var rooms = [];
+    for (var name in games) {
+      rooms.push(name);
+    }
+
+    res.render('index', { rooms: rooms });
+  };
+
   exports.create = function(req, res) {
     var name = Moniker.choose();
     var game = new anchorage.Game(name);
     games[name] = game;
-    res.send("New game created: " + name);
+    res.redirect('/room/' + name);
   };
 
-  exports.list = function(req, res) {
-    res.render('room');
-  };
+  // exports.list = function(req, res) {
+  //   res.render('room');
+  // };
 
   exports.get = function(req, res) {
     res.render('game');

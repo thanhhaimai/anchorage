@@ -100,7 +100,7 @@
     for (var i = 0; i < this.game.players.length; i++) {
       var player = this.game.players[i];
       if (player.id == this.socket.socket.sessionid) {
-        console.log("You're in the game");
+        console.log("You're in the game. Let's wait for more people to join.");
         return;
       }
     }

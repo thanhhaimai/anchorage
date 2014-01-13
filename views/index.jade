@@ -1,5 +1,11 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 Anchorage
+  p Welcome, to create a room, click 
+    a(href="/create") here
+  p List of created rooms:
+    ul
+      each room in rooms
+        li
+          a(href="/room/" + room)= room
