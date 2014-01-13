@@ -150,7 +150,7 @@
     }
   }
 
-  exports.socket = io.connect('http://localhost:3000');
+  exports.socket = io.connect("http://" + window.location.host);
   exports.Room = Room;
 
 })(this['anchorage'] = this['anchorage'] || {});

@@ -1,6 +1,6 @@
 {
-  "name": "application-name",
-  "version": "0.0.1",
+  "name": "anchorage",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -11,5 +11,8 @@
     "less-middleware": "*",
     "socket.io": "0.9.16",
     "moniker": "*"
+  },
+  "engines": {
+    "node": "0.11.11"
   }
 }
