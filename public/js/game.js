@@ -187,54 +187,72 @@
   }
 
   Game.prototype.endRound = function() {
-    // TODO(thanhhaimai): implement double/triple steal
-    for (var i = 0; i < this.actions.length; i++) {
-      this.computeRoundResult(i);
-      this.computeNewScore(i);
-    }
-
+    this.computeRoundResult();
     this.state = GameStates.ROUND_END;
     this.syncAllClients(true);
   }
 
-  Game.prototype.computeRoundResult = function(actionIndex) {
-    var action = this.actions[actionIndex];
-    if (typeof action.card !== 'undefined') {
-      action.equalCardsCount = 0;
-      action.lteCardsCount = 0;
+  Game.prototype.computeRoundResult = function() {
+    for (var i = 0; i < this.actions.length; i++) {
+      var action = this.actions[i];
+      if (typeof action.card === 'undefined') {
+        return;
+      }
 
-      for (var j = 0; j < this.actions.length; j++) {
-        if (actionIndex != j) {
-          if (action.card == this.actions[j].card) {
-            action.equalCardsCount++;
-            action.lteCardsCount++;
+      if (action.guess <= GuessActions.THREE) {
+        // if it's a normal guess action (from 0 to 3)
+        // then count all the cards that are less than or equal
+        // if the count == the guess, then add one to the score
+        // make the score pending, since some one with a double/triple
+        // can steal from us
+        count = 0;
+        for (var j = 0; j < this.actions.length; j++) {
+          if (i != j && action.card >= this.actions[j].card) {
+            count++;
+          }
+        }
+
+        if (action.guess == count) {
+          action.pendingScore = action.player.score + 1;
+        } else {
+          action.pendingScore = action.player.score;
+        }
+      } else {
+        // if it's a double/triple action
+        // then count all the cards that are equal
+        // if the guess is correct, then add the corresponsding points to the score
+        // make the score pending, since some one with a double/triple
+        // can steal from us
+        // then we scan all our victims, and mark their scores as stolen.
+        count = 0;
+        for (var j = 0; j < this.actions.length; j++) {
+          if (i != j && action.card == this.actions[j].card) {
+            count++;
+          }
+        }
+
+        if (action.guess == count + GuessActions.THREE) {
+          for (var j = 0; j < this.actions.length; j++) {
+            if (i != j && action.card == this.actions[j].card) {
+              this.actions[j].scoreStolen = true
+            }
           }
 
-          if (action.card > this.actions[j].card) {
-            action.lteCardsCount++;
-          }
+          action.pendingScore = action.player.score + action.guess - GuessActions.THREE + 1;
+        } else {
+          action.pendingScore = action.player.score;
         }
       }
     }
-  }
 
-  Game.prototype.computeNewScore = function(actionIndex) {
-    var action = this.actions[actionIndex];
-    if (typeof action.card !== 'undefined') {
-      if (action.guess == GuessActions.DOUBLE && action.equalCardsCount == 1) {
-        this.findPlayer(action.player.id).score++;
-      } else if (action.guess == GuessActions.TRIPLE && action.equalCardsCount == 2) {
-        this.findPlayer(action.player.id).score++;
-      } else if (action.guess == GuessActions.ZERO && action.lteCardsCount == 0) {
-        this.findPlayer(action.player.id).score++;
-      } else if (action.guess == GuessActions.ONE && action.lteCardsCount == 1) {
-        this.findPlayer(action.player.id).score++;
-      } else if (action.guess == GuessActions.TWO && action.lteCardsCount == 2) {
-        this.findPlayer(action.player.id).score++;
-      } else if (action.guess == GuessActions.THREE && action.lteCardsCount == 3) {
-        this.findPlayer(action.player.id).score++;
+    // after that, we only apply the pending score to the non-stolen action.
+    for (var i = 0; i < this.actions.length; i++) {
+      var action = this.actions[i];
+      if (!action.scoreStolen) {
+        this.findPlayer(action.player.id).score = action.pendingScore;
       }
     }
+
   }
 
   function Action(player, guess, card) {
@@ -251,6 +269,7 @@
     this.player = player;
     this.guess = guess;
     this.card = card;
+    this.scoreStolen = false;
   }
 
   Action.prototype.toDict = function (revealActions) {
