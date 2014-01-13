@@ -13,12 +13,13 @@
   }
 
   GuessActions = {
-    ONE: 0,
-    TWO: 1,
-    THREE: 2,
-    DOUBLE: 3,
-    TRIPLE: 4,
-    COUNT: 5
+    ZERO: 0,
+    ONE: 1,
+    TWO: 2,
+    THREE: 3,
+    DOUBLE: 4,
+    TRIPLE: 5,
+    COUNT: 6
   }
 
   GameConstants = {
@@ -52,6 +53,7 @@
 
   // deals the cards to players.
   // if count is not set, deal the cards to all the players equally.
+  // returns the number of cards dealt to each player
   Deck.prototype.deal = function(players, count) {
     var self = this;
     count = count || (this.deck.length / players.length >> 0);
@@ -61,6 +63,8 @@
         players[j].hand.push(self.deck.pop());
       }
     }
+
+    return count;
   }
 
   function Player(id, socket) {
@@ -97,7 +101,7 @@
 
     this.id = id;
     this.state = GameStates.INIT;
-    this.discardCardsCount = 0;
+    this.maxRoundsCount = 0;
     this.roundsCount = 0;
     this.players = [];
     this.actions = [];
@@ -108,7 +112,6 @@
     var game = {
       id: self.id,
       state: self.state,
-      discardCardsCount: self.discardCardsCount,
       roundsCount: self.roundsCount,
     };
 
@@ -155,18 +158,25 @@
   Game.prototype.start = function() {
     deck = new Deck();
     deck.shuffle();
-    deck.deal(this.players);
+    this.maxRoundsCount = deck.deal(this.players);
+    this.actions = [];
     this.state = GameStates.ROUND_START;
   }
 
   Game.prototype.startRound = function() {
+    this.roundsCount++;
     this.actions = [];
+    this.state = GameStates.ROUND_START;
   }
 
   // if called by the client, then card == undefine
   Game.prototype.playCard = function(player, guess, card) {
+    var expectedCardsCount = this.maxRoundsCount - this.roundsCount;
+
     if (player.hand.indexOf(card) != -1
-        && guess >= 0 && guess < GuessActions.COUNT) {
+        && player.hand.length == expectedCardsCount
+        && guess >= 0
+        && guess < GuessActions.COUNT) {
       player.hand.splice(player.hand.indexOf(card), 1);
       this.actions.push(new Action(player, guess, card));
 
@@ -177,15 +187,13 @@
   }
 
   Game.prototype.endRound = function() {
-    // TODO(thanhhaimai): optimize when I have time
+    // TODO(thanhhaimai): implement double/triple steal
     for (var i = 0; i < this.actions.length; i++) {
       this.computeRoundResult(i);
       this.computeNewScore(i);
-      console.log(this.players[i].score);
     }
 
     this.actions = [];
-    this.roundsCount++;
     this.state = GameStates.ROUND_END;
   }
 
@@ -216,6 +224,8 @@
       if (action.guess == GuessActions.DOUBLE && action.equalCardsCount == 2) {
         this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.TRIPLE && action.equalCardsCount == 3) {
+        this.findPlayer(action.player.id).score++;
+      } else if (action.guess == GuessActions.ZERO && action.lteCardsCount == 0) {
         this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.ONE && action.lteCardsCount == 1) {
         this.findPlayer(action.player.id).score++;

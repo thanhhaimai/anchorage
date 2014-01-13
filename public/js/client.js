@@ -22,6 +22,7 @@
       self.game.players = game.players.map(function(player) {
         var p = new anchorage.Player(player.id);
         p.hand = player.hand;
+        p.score = player.score;
         return p;
       });
 
@@ -29,7 +30,6 @@
         return new anchorage.Action(action.player, action.guess);
       });
 
-      self.game.discardCardsCount = game.discardCardsCount;
       self.game.roundsCount = game.roundsCount;
       self.game.state = game.state;
 
@@ -123,7 +123,7 @@
   Room.prototype.renderPlayers = function() {
     for (var i = 0; i < this.game.players.length; i++) {
       var player = this.game.players[i];
-      console.log(player.id + ": " + player.hand);
+      console.log(player.id + " score=" + player.score + ", hand=" + player.hand);
     }
   }
 

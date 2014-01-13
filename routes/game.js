@@ -95,6 +95,16 @@
 
         game.playCard(player, request.guess, request.card);
         game.syncAllClients();
+
+        if (game.state == anchorage.GameStates.ROUND_END) {
+          if (game.roundsCount == game.maxRoundsCount) {
+            game.state = anchorage.GameStates.END;
+          } else {
+            game.startRound();
+          }
+
+          game.syncAllClients();
+        }
       });
     });
   }
