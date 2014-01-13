@@ -43,12 +43,6 @@
 
       self.render(); 
     });
-
-    // self.socket.on('onRoundStart', this.onRoundStart);
-    // self.socket.on('onRoundEnd', this.onRoundEnd);
-    // self.socket.on('onGameEnd', this.onGameEnd);
-
-    this.isPlaying = false;
   }
 
   // loads the current hand from server.
@@ -89,17 +83,17 @@
       this.clearReadyButton();
     } else if (this.game.state == anchorage.GameStates.ROUND_START) {
       this.renderRoundStart();
+      this.renderPlayers();
+      this.renderActions();
     } else if (this.game.state == anchorage.GameStates.ROUND_END) {
       this.renderRoundEnd();
+      this.renderActions();
     } else if (this.game.state == anchorage.GameStates.END) {
+      this.renderPlayers();
       this.renderGameEnd();
-      return;
     } else {
       console.error("Bad game state: " + this.game.state);
     }
-
-    this.renderPlayers();
-    this.renderActions();
   }
 
   Room.prototype.renderReadyButton = function() {
@@ -111,7 +105,9 @@
       }
     }
 
-    console.log("Please enter ready");
+    console.log("Welcome to room " + this.name);
+    console.log("There is a free slot in the room. Do you want to play?");
+    console.log("Type: room.requestReady() to join the game.");
   }
 
   Room.prototype.clearReadyButton = function() {
@@ -119,11 +115,16 @@
   }
 
   Room.prototype.renderRoundStart = function() {
-    console.log("Round " + this.game.roundsCount + " in progress. Please submit your action.");
+    console.log("=================== ROUND " + this.game.roundsCount + " =================");
+    // console.log("Round " + this.game.roundsCount + " in progress.");
+    console.log("To play a card, type:");
+    console.log("room.requestPlayCard(<card numer>, <guess number>)");
   }
 
   Room.prototype.renderRoundEnd = function() {
+    console.log("================================================");
     console.log("Round " + this.game.roundsCount + " has ended.");
+    console.log("Here is the result of last round:");
   }
 
   Room.prototype.renderGameEnd = function() {
@@ -131,35 +132,25 @@
   }
 
   Room.prototype.renderPlayers = function() {
+    console.log("All players in game, note that you can only see your hand.");
     for (var i = 0; i < this.game.players.length; i++) {
       var player = this.game.players[i];
-      console.log(player.id + " score=" + player.score + ", hand=" + player.hand);
+      console.log(i + "> " + player.id + " score=" + player.score + ", hand=" + player.hand);
     }
   }
 
   Room.prototype.renderActions = function() {
     for (var i = 0; i < this.game.actions.length; i++) {
-      console.log(this.game.actions[i]);
+      var action = this.game.actions[i];
+      if (typeof action.card === 'undefined') {
+        console.log(action.player.id + " played guess=" + action.guess);
+      } else {
+        console.log(action.player.id + " played card=" + action.card + ", guess=" + action.guess);
+      }
     }
   }
 
-  // Room.prototype.onRoundStart = function(game) {
-  //   this.game.state = anchorage.GameStates.ROUND_START;
-  //   // renderRoundStart(game);
-  // }
-  //
-  // Room.prototype.onRoundEnd = function(game) {
-  //   this.game.state = anchorage.GameStates.ROUND_START;
-  //   // renderRoundEnd(game);
-  // }
-  //
-  // Room.prototype.onGameEnd = function(game) {
-  //   this.game.state = anchorage.GameStates.END;
-  //   // renderGameEnd(game);
-  // }
-
   exports.socket = io.connect('http://localhost:3000');
-  // exports.Display = Display;
   exports.Room = Room;
 
 })(this['anchorage'] = this['anchorage'] || {});
