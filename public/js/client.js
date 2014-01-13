@@ -73,6 +73,15 @@
     this.socket.emit('requestPlayCard', request);
   }
 
+  Room.prototype.playRandom = function() {
+    var index = Math.floor(Math.random() * this.currentPlayer.hand.length);
+    var card = this.currentPlayer.hand[index];
+    var guess = Math.floor(Math.random() * anchorage.GuessActions.COUNT);
+
+    console.log("Playing card=" + card + ", guess=" + guess);
+    this.requestPlayCard(card, guess);
+  }
+
   Room.prototype.render = function() {
     if (this.game.state == anchorage.GameStates.INIT) {
       this.renderReadyButton();
@@ -118,7 +127,7 @@
   }
 
   Room.prototype.renderGameEnd = function() {
-    console.log("Game is over.");
+    console.log("Game is over. Please create a new game. Thanks for testing.");
   }
 
   Room.prototype.renderPlayers = function() {
