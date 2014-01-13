@@ -27,7 +27,7 @@
       });
 
       self.game.actions = game.actions.map(function(action) {
-        return new anchorage.Action(action.player, action.guess);
+        return new anchorage.Action(action.player, action.guess, action.card);
       });
 
       self.game.roundsCount = game.roundsCount;
@@ -84,6 +84,7 @@
       this.renderRoundEnd();
     } else if (this.game.state == anchorage.GameStates.END) {
       this.renderGameEnd();
+      return;
     } else {
       console.error("Bad game state: " + this.game.state);
     }

@@ -107,7 +107,7 @@
     this.actions = [];
   }
 
-  Game.prototype.toDict = function(fromPlayerId) {
+  Game.prototype.toDict = function(fromPlayerId, revealActions) {
     var self = this;
     var game = {
       id: self.id,
@@ -116,7 +116,7 @@
     };
 
     game['actions'] = self.actions.map(function(action) {
-      return action.toDict();
+      return action.toDict(revealActions);
     });
 
     var players = [];
@@ -134,10 +134,10 @@
     return game;
   }
 
-  Game.prototype.syncAllClients = function() {
+  Game.prototype.syncAllClients = function(revealActions) {
     for (var i = 0; i < this.players.length; i++) {
       var player = this.players[i];
-      player.socket.emit('onSync', this.toDict(player.id));
+      player.socket.emit('onSync', this.toDict(player.id, revealActions));
     }
   }
 
@@ -193,8 +193,8 @@
       this.computeNewScore(i);
     }
 
-    this.actions = [];
     this.state = GameStates.ROUND_END;
+    this.syncAllClients(true);
   }
 
   Game.prototype.computeRoundResult = function(actionIndex) {
@@ -221,9 +221,9 @@
   Game.prototype.computeNewScore = function(actionIndex) {
     var action = this.actions[actionIndex];
     if (typeof action.card !== 'undefined') {
-      if (action.guess == GuessActions.DOUBLE && action.equalCardsCount == 2) {
+      if (action.guess == GuessActions.DOUBLE && action.equalCardsCount == 1) {
         this.findPlayer(action.player.id).score++;
-      } else if (action.guess == GuessActions.TRIPLE && action.equalCardsCount == 3) {
+      } else if (action.guess == GuessActions.TRIPLE && action.equalCardsCount == 2) {
         this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.ZERO && action.lteCardsCount == 0) {
         this.findPlayer(action.player.id).score++;
@@ -253,12 +253,16 @@
     this.card = card;
   }
 
-  Action.prototype.toDict = function () {
+  Action.prototype.toDict = function (revealActions) {
      var self = this;
      var action = {
        player: self.player.toDict(),
        guess: self.guess,
      };
+
+     if (revealActions) {
+       action['card'] = self.card;
+     }
 
      return action;
   }

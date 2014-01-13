@@ -28,7 +28,7 @@
           return;
         }
 
-        client.emit('onSync', game.toDict(client.id));
+        client.emit('onSync', game.toDict(client.id, false));
       });
 
       client.on('requestReady', function(name) {
@@ -94,17 +94,16 @@
         }
 
         game.playCard(player, request.guess, request.card);
-        game.syncAllClients();
 
         if (game.state == anchorage.GameStates.ROUND_END) {
-          if (game.roundsCount == game.maxRoundsCount) {
+          if (game.roundsCount == game.maxRoundsCount - 1) {
             game.state = anchorage.GameStates.END;
           } else {
             game.startRound();
           }
-
-          game.syncAllClients();
         }
+
+        game.syncAllClients();
       });
     });
   }
