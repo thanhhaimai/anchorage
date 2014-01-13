@@ -42,8 +42,8 @@
   }
 
   Deck.prototype.shuffle = function() {
-    for (var i = 0; i < this.deck.length; i++) {
-      var j = Math.floor(Math.random() * (this.deck.length + 1));
+    for (var i = this.deck.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * i);
       var tmp = this.deck[i];
       this.deck[i] = this.deck[j];
       this.deck[j] = tmp;
@@ -142,6 +142,16 @@
     this.players.push(new Player(socket.id, socket));
   }
 
+  Game.prototype.findPlayer = function(id) {
+    for (var i = 0; i < this.players.length; i++) {
+      if (this.players[i].id == id) {
+        return this.players[i];
+      }
+    }
+
+    return null;
+  }
+
   Game.prototype.start = function() {
     deck = new Deck();
     deck.shuffle();
@@ -155,8 +165,15 @@
 
   // if called by the client, then card == undefine
   Game.prototype.playCard = function(player, guess, card) {
-    this.player.hand.remove(card);
-    this.actions.push(new Action(player, guess, card));
+    if (player.hand.indexOf(card) != -1
+        && guess >= 0 && guess < GuessActions.COUNT) {
+      player.hand.splice(player.hand.indexOf(card), 1);
+      this.actions.push(new Action(player, guess, card));
+
+      if (this.actions.length == GameConstants.NUM_PLAYERS) {
+        this.endRound();
+      }
+    }
   }
 
   Game.prototype.endRound = function() {
@@ -164,7 +181,12 @@
     for (var i = 0; i < this.actions.length; i++) {
       this.computeRoundResult(i);
       this.computeNewScore(i);
+      console.log(this.players[i].score);
     }
+
+    this.actions = [];
+    this.roundsCount++;
+    this.state = GameStates.ROUND_END;
   }
 
   Game.prototype.computeRoundResult = function(actionIndex) {
@@ -192,15 +214,15 @@
     var action = this.actions[actionIndex];
     if (typeof action.card !== 'undefined') {
       if (action.guess == GuessActions.DOUBLE && action.equalCardsCount == 2) {
-        action.player.score++;
+        this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.TRIPLE && action.equalCardsCount == 3) {
-        action.player.score++;
+        this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.ONE && action.lteCardsCount == 1) {
-        action.player.score++;
+        this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.TWO && action.lteCardsCount == 2) {
-        action.player.score++;
+        this.findPlayer(action.player.id).score++;
       } else if (action.guess == GuessActions.THREE && action.lteCardsCount == 3) {
-        action.player.score++;
+        this.findPlayer(action.player.id).score++;
       }
     }
   }

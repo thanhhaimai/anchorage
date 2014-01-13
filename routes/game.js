@@ -38,12 +38,8 @@
           return;
         }
 
-        for (var i = 0; i < game.players.length; i++) {
-          // the player is already in the game
-          if (game.players[i].id == client.id) {
-            game.syncAllClients();
-            return;
-          }
+        if (game.findPlayer(client.id) != null) {
+          return;
         }
 
         game.addNewPlayer(client);
@@ -64,6 +60,10 @@
           return;
         }
 
+        if (game.findPlayer(client.id) == null) {
+          return;
+        }
+
         for (var i = 0; i < game.players.length; i++) {
           // the player is already in the game
           if (game.players[i].id == client.id) {
@@ -79,6 +79,22 @@
 
         game.syncAllClients();
         // sockets.emit('onSync', game);
+      });
+
+      client.on('requestPlayCard', function(request) {
+        var name = request.name;
+        var game = games[name];
+        if (game == null) {
+          return;
+        }
+
+        var player = game.findPlayer(client.id);
+        if (player == null) {
+          return;
+        }
+
+        game.playCard(player, request.guess, request.card);
+        game.syncAllClients();
       });
     });
   }

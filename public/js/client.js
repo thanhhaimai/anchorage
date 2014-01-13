@@ -65,13 +65,8 @@
   }
 
   Room.prototype.requestPlayCard = function(card, guess) {
-    // local
-    this.game.playCard(this.currentPlayer, guess, card);
-
-    // server
     request = {
       name: this.name,
-      id: this.socket.socket.sessionid,
       guess: guess,
       card: card
     };
@@ -93,7 +88,8 @@
       console.error("Bad game state: " + this.game.state);
     }
 
-    this.renderPlayers(this.game.players);
+    this.renderPlayers();
+    this.renderActions();
   }
 
   Room.prototype.renderReadyButton = function() {
@@ -131,7 +127,7 @@
     }
   }
 
-  Room.prototype.renderAction = function() {
+  Room.prototype.renderActions = function() {
     for (var i = 0; i < this.game.actions.length; i++) {
       console.log(this.game.actions[i]);
     }
