@@ -155,4 +155,18 @@
 
 })(this['anchorage'] = this['anchorage'] || {});
 
-room = new anchorage.Room(anchorage.socket);
+$(function() {
+  room = new anchorage.Room(anchorage.socket);
+  $("#player0 > .card").each(function(i, e) {
+    move(e).x(-78 * i).end();
+  });
+  $("#player1 > .card").each(function(i, e) {
+    move(e).x(-78 * i).end();
+  });
+  $("#player2 > .card").each(function(i, e) {
+    move(e).x(-78 * i).end();
+  });
+  $("#player3 > .card").each(function(i, e) {
+    move(e).x(-78 * i).end();
+  });
+})

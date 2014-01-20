@@ -4,7 +4,6 @@
 }
 
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background: #eeeeee
 }
@@ -13,22 +12,18 @@ a {
   color: #00B7FF;
 }
 
-.hand:before,
-.hand:after {
-    content:"";
-    display:table;
-}
- 
-.hand:after {
-    clear:both;
+.hand {
+  white-space: nowrap;
 }
 
 .card {
+  display: inline-block;
+  white-space: normal;
   position: relative;
-  float: left;
+  // float: left;
   margin: 5px;
-  width: 100px;
-  height: 140px;
+  width: 90px;
+  height: 126px;
   border-radius: 10px;
   background: white;
   -webkit-box-shadow: 2px 2px 12px rgba(0,0,0,0.3);
@@ -37,7 +32,7 @@ a {
 
 .card p {
   text-align: center;
-  font: 70px/140px Times New Roman, serif;
+  font: 60px/126px Times New Roman, serif;
 }
 
 .card:before {
