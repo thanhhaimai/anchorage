@@ -23,7 +23,7 @@
   }
 
   GameConstants = {
-    RANKS: "234567890JQKA",
+    RANKS: "234567891JQKA", // 1 = 10
     SUITS: "dhcs",
     NUM_PLAYERS: 4
   }
@@ -35,7 +35,7 @@
 
     for (var i = 0; i < ranksCount; i++) {
       for (var j = 0; j < suitsCount; j++) {
-        this.deck.push(GameConstants.RANKS[i] + GameConstants.SUITS[j]);
+        this.deck.push(GameConstants.SUITS[j] + GameConstants.RANKS[i]);
       }
     }
   }

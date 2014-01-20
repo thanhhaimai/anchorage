@@ -118,19 +118,22 @@
     $("#player0").empty();
     for (var i = 0; i < this.currentPlayer.hand.length; i++) {
       var card = this.currentPlayer.hand[i];
-      var rank = card.charAt(0);
-      if (rank == "0") {
+      var suit = card.charAt(0);
+      var rank = card.charAt(1);
+      if (rank == "1") {
         rank = "10"
       }
-      var suit = card.charAt(1);
-      $("<div rank='" + rank + "'><p>" + rank + "</p></div>").addClass("card").addClass(suit).appendTo("#player0")
+      $("<div rank='" + rank + "'><p>" + rank + "</p></div>").addClass(suit).addClass("card").appendTo("#player0")
     }
+
     $("#player0 > .card").each(function(i, e) {
-      move(e).x(-78 * i).end();
+      move(e).x(-75 * i).end();
       $(e).click(function () {
-        console.log(e.getAttribute('rank'));
+        console.log(e.getAttribute('class').charAt(0) + e.getAttribute('rank') );
       });
     });
+
+
     console.log("=================== ROUND " + this.game.roundsCount + " =================");
     // console.log("Round " + this.game.roundsCount + " in progress.");
     console.log("To play a card, type:");
@@ -173,10 +176,5 @@
 
 $(function() {
   room = new anchorage.Room(anchorage.socket);
-  $("#player1 > .card").each(function(i, e) {
-    move(e).x(-78 * i).end();
-    $(e).click(function () {
-      console.log(e.getAttribute('rank'));
-    });
-  });
+  room.requestReady();
 })
