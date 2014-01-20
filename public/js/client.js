@@ -115,6 +115,22 @@
   }
 
   Room.prototype.renderRoundStart = function() {
+    $("#player0").empty();
+    for (var i = 0; i < this.currentPlayer.hand.length; i++) {
+      var card = this.currentPlayer.hand[i];
+      var rank = card.charAt(0);
+      if (rank == "0") {
+        rank = "10"
+      }
+      var suit = card.charAt(1);
+      $("<div rank='" + rank + "'><p>" + rank + "</p></div>").addClass("card").addClass(suit).appendTo("#player0")
+    }
+    $("#player0 > .card").each(function(i, e) {
+      move(e).x(-78 * i).end();
+      $(e).click(function () {
+        console.log(e.getAttribute('rank'));
+      });
+    });
     console.log("=================== ROUND " + this.game.roundsCount + " =================");
     // console.log("Round " + this.game.roundsCount + " in progress.");
     console.log("To play a card, type:");
@@ -157,16 +173,10 @@
 
 $(function() {
   room = new anchorage.Room(anchorage.socket);
-  $("#player0 > .card").each(function(i, e) {
-    move(e).x(-78 * i).end();
-  });
   $("#player1 > .card").each(function(i, e) {
     move(e).x(-78 * i).end();
-  });
-  $("#player2 > .card").each(function(i, e) {
-    move(e).x(-78 * i).end();
-  });
-  $("#player3 > .card").each(function(i, e) {
-    move(e).x(-78 * i).end();
+    $(e).click(function () {
+      console.log(e.getAttribute('rank'));
+    });
   });
 })

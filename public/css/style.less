@@ -4,6 +4,7 @@
 }
 
 body {
+  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background: #eeeeee
 }
@@ -14,6 +15,7 @@ a {
 
 .hand {
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .card {
@@ -55,39 +57,39 @@ a {
   cursor: pointer;
 }
 
-.diamonds,
-.hearts {
+.hand .d,
+.hand .h{
   color: #ff0000;
 }
 
-.diamonds:before {
+.hand .d:before {
   content: "♦" "\A" attr(rank);
 }
 
-.diamonds:after {
+.hand .d:after {
   content: "♦";
 }
 
-.hearts:before {
+.hand .h:before {
   content: "♥" "\A" attr(rank);
 }
 
-.hearts:after {
+.hand .h:after {
   content: "♥";
 }
 
-.clubs:before {
+.hand .c:before {
   content: "♣" "\A" attr(rank);
 }
 
-.clubs:after {
+.hand .c:after {
   content: "♣";
 }
 
-.spades:before {
+.hand .s:before {
   content: "♠" "\A" attr(rank);
 }
 
-.spades:after {
+.hand .s:after {
   content: "♠";
 }

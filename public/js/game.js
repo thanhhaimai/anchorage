@@ -23,21 +23,19 @@
   }
 
   GameConstants = {
-    RANKS_COUNT: 13,
-    SUITS_COUNT: 4,
-    START_CARD_RANK: 2,
+    RANKS: "234567890JQKA",
+    SUITS: "dhcs",
     NUM_PLAYERS: 4
   }
 
-  function Deck(ranksCount, suitsCount, startRank) {
+  function Deck(ranksCount, suitsCount) {
     this.deck = [];
-    ranksCount = ranksCount || GameConstants.RANKS_COUNT;
-    suitsCount = suitsCount || GameConstants.SUITS_COUNT;
-    startRank = startRank || GameConstants.START_CARD_RANK;
+    ranksCount = ranksCount || GameConstants.RANKS.length;
+    suitsCount = suitsCount || GameConstants.SUITS.length;
 
-    for (var i = startRank; i < startRank + ranksCount; i++) {
+    for (var i = 0; i < ranksCount; i++) {
       for (var j = 0; j < suitsCount; j++) {
-        this.deck.push(i);
+        this.deck.push(GameConstants.RANKS[i] + GameConstants.SUITS[j]);
       }
     }
   }
