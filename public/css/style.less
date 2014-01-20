@@ -1,8 +1,98 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: #eeeeee
 }
 
 a {
   color: #00B7FF;
+}
+
+.hand:before,
+.hand:after {
+    content:"";
+    display:table;
+}
+ 
+.hand:after {
+    clear:both;
+}
+
+.card {
+  position: relative;
+  float: left;
+  margin: 5px;
+  width: 100px;
+  height: 140px;
+  border-radius: 10px;
+  background: white;
+  -webkit-box-shadow: 2px 2px 12px rgba(0,0,0,0.3);
+  box-shadow: 2px 2px 12px rgba(0,0,0,0.3);
+}
+
+.card p {
+  text-align: center;
+  font: 50px/140px Times New Roman, serif;
+}
+
+.card:before {
+  position: absolute;
+  font: 20px/18px Times New Roman, serif;
+  left: 5px;
+  top: 5px;
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+.card:after {
+  position: absolute;
+  font: 20px Times New Roman, serif;
+  right: 5px;
+  bottom: 5px;
+}
+
+.card:hover {
+  cursor: pointer;
+}
+
+.diamonds,
+.hearts {
+  color: #ff0000;
+}
+
+.diamonds:before {
+  content: "♦" "\A" attr(rank);
+}
+
+.diamonds:after {
+  content: "♦";
+}
+
+.hearts:before {
+  content: "♥" "\A" attr(rank);
+}
+
+.hearts:after {
+  content: "♥";
+}
+
+.clubs:before {
+  content: "♣" "\A" attr(rank);
+}
+
+.clubs:after {
+  content: "♣";
+}
+
+.spades:before {
+  content: "♠" "\A" attr(rank);
+}
+
+.spades:after {
+  content: "♠";
 }

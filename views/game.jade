@@ -2,6 +2,11 @@ extends layout
 
 block content
   h1 F12?
+  each suit in ["diamonds", "hearts", "clubs", "spades"]
+    div.hand
+      each card in ['2', '3', '4', '5', '6', '7', '8', '9', 'J', 'Q', 'K', 'A']
+        div(class=['card'] class=suit rank=card)
+          p= card
   script(src="/socket.io/socket.io.js")
   script(src="/js/game.js")
   script(src="/js/client.js")
