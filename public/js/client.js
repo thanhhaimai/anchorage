@@ -131,6 +131,12 @@
       $(e).click(function () {
         console.log(e.getAttribute('class').charAt(0) + e.getAttribute('rank') );
       });
+      $(e).mouseenter(function () {
+        move(e).y(-70).x(-75 * i).end();
+      })
+      $(e).mouseleave(function () {
+        move(e).y(0).x(-75 * i).end();
+      });
     });
 
 
@@ -177,4 +183,7 @@
 $(function() {
   room = new anchorage.Room(anchorage.socket);
   room.requestReady();
+  // $("#player0").mousemove(function (e) {
+  //
+  // });
 })
